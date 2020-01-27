@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Validator;
 
 class ServiceController extends Controller
 {
@@ -17,11 +18,25 @@ class ServiceController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function timeAndWeather(Request $request){
+
+        // Validate request
+        $requestResults = Validator::make($request->all(), [
+            'lat'   => 'required|numeric',
+            'lng'   => 'required|numeric'
+        ]);
+
+        // Abort if it's a bad request
+        if($requestResults->fails()){
+            return response()->json([
+                'errors'    => $requestResults->errors()
+            ], 400);
+        }
+
+        $lat = $request->lat;
+        $lng = $request->lng;
+        
         $data = []; // The data that will be send to the user
         
-        // Data for testing
-        $lat = 30.0444;
-        $lng = 31.2357;
 
         
         $client = new Client();  // Create new client
@@ -70,9 +85,6 @@ class ServiceController extends Controller
             ], 500);
         }
 
-
-
-        return response()->json($data, 200);
-        
+        return response()->json($data, 200);        
     }
 }
