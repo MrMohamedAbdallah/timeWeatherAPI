@@ -47,6 +47,30 @@ class ServiceController extends Controller
             ], 500);
         }
 
+        $timeRequest = $client->get('https://api.ipgeolocation.io/timezone',[
+            'query' => [
+                'apiKey' => env('TIME_API_KEY'),
+                'lat' => $lat,
+                'long' => $lng,
+
+            ]
+        ]);
+
+        if($timeRequest->getStatusCode() == 200){
+            // Convert the data to object
+            $timeData = json_decode($timeRequest->getBody());
+            $data['time'] = $timeData;
+        } else {
+            return response()->json([
+                'errors'    => [
+                    'time'   => [
+                        'Error while connecting to the time API'
+                    ]
+                ]
+            ], 500);
+        }
+
+
 
         return response()->json($data, 200);
         
